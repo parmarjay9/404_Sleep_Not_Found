@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173d36">
+  <meta name="description" content="Get started with WebCompass: create an account, verify your age, and connect your Chrome browser with a signed age pass.">
+  <title>WebCompass · Your web, with a little direction</title>
+  <!-- Tailwind's browser build is for local development. Compile the CSS before production deployment. -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --color-forest: #173d36;
+      --color-forest-light: #24574b;
+      --color-ink: #202f2b;
+      --color-muted: #69746c;
+      --color-paper: #f8f8f3;
+      --color-line: #e1e6dc;
+      --color-lime: #d3ed94;
+      --color-mist: #edf2e7;
+      --color-sand: #f3e8d5;
+      --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-display: Georgia, "Times New Roman", serif;
+    }
+  </style>
+  <style>
+    [hidden] { display: none !important; }
+    :root { color-scheme: light; }
+    body { margin: 0; background: #f8f8f3; color: #202f2b; font-family: ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    :focus-visible { outline: 3px solid #93b74d; outline-offset: 4px; }
+    button:disabled { cursor: wait; opacity: .65; }
+    .msg:empty { display: none; }
+    .msg { font-size: 13px; line-height: 1.7; color: #24574b; padding: 12px 14px; background: #edf2e7; border-radius: 12px; margin-top: 16px; }
+    .msg.bad { color: #914428; background: #fbede5; }
+    .progress-step { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 600; color: #7d867c; }
+    .progress-number { display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid #dce2d6; border-radius: 50%; font-size: 10px; flex-shrink: 0; }
+    .progress-step[data-state="active"] { color: #173d36; }
+    .progress-step[data-state="active"] .progress-number { border-color: #173d36; background: #173d36; color: white; }
+    .progress-step[data-state="complete"] { color: #24574b; }
+    .progress-step[data-state="complete"] .progress-number { background: #d3ed94; border-color: #d3ed94; }
+    .pass-status { border: 1px solid #bfd694; border-radius: 18px; background: #f1f7e8; padding: 24px; color: #173d36; }
+    .pass-status[data-eligible="false"] { border-color: #eed1b5; background: #fbf0e4; color: #804f27; }
+    .guide-tab { border: 1px solid transparent; border-radius: 12px; padding: 13px 18px; background: transparent; color: #69746c; font: inherit; font-size: 13px; cursor: pointer; }
+    .guide-tab[aria-selected="true"] { background: #fff; border-color: #e1e6dc; color: #173d36; box-shadow: 0 3px 12px #173d3606; }
+    .guide-number { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: #edf2e7; color: #173d36; font-size: 13px; font-weight: 700; }
+    .orbit-grid { background-image: radial-gradient(#ced8c4 1px, transparent 1px); background-size: 18px 18px; }
+    details summary::-webkit-details-marker { display: none; }
+    details[open] .faq-plus { transform: rotate(45deg); }
+    .skip-link { position: fixed; top: 10px; left: 10px; z-index: 100; transform: translateY(-150%); padding: 12px 18px; border-radius: 9px; background: #173d36; color: white; }
+    .skip-link:focus { transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto !important; } * { transition: none !important; } }
+  </style>
+</head>
+<body class="antialiased">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="0" height="0" class="absolute">
+    <defs>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24"><path d="m6 12 4 4 8-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="icon-browser" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="icon-id" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8" cy="10" r="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 16c.3-3 5.7-3 6 0m3-6h4m-4 4h4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
+  <header class="border-b border-line bg-paper/95">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between gap-5 px-6 py-5 md:px-8" aria-label="Main navigation">
+      <a href="#" class="flex items-center gap-3 text-lg font-semibold tracking-tight" aria-label="WebCompass home">
+        <span class="grid size-10 place-items-center rounded-xl bg-forest text-lime">
+          <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11.5" fill="none" stroke="currentColor" stroke-width="1.2" opacity=".5"/><path d="m21.5 10.5-3.2 7.8-7.8 3.2 3.2-7.8z" fill="currentColor"/><circle cx="16" cy="16" r="1.5" fill="#173d36"/></svg>
+        </span>
+        WebCompass<span class="ml-1 hidden rounded-full border border-line px-2 py-0.5 text-[9px] font-medium tracking-wide text-muted sm:inline">EARLY ACCESS</span>
+      </a>
+      <div class="flex items-center gap-7 text-xs font-medium">
+        <a href="#how-it-works" class="hidden text-muted transition hover:text-forest md:inline">How it works</a>
+        <a href="#privacy" class="hidden text-muted transition hover:text-forest md:inline">Your privacy</a>
+        <a href="#get-started" class="flex items-center gap-3 rounded-full bg-forest px-5 py-3 text-white transition hover:bg-forest-light">Get started <svg class="size-4" aria-hidden="true"><use href="#icon-arrow"/></svg></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="relative mx-auto grid max-w-6xl gap-12 px-6 pb-14 pt-12 md:px-8 md:pt-18 lg:grid-cols-[1.15fr_1fr] lg:items-start lg:gap-16 lg:pb-20" aria-labelledby="hero-title">
+      <div class="lg:pt-4">
+        <div class="mb-7 inline-flex items-center gap-2 rounded-full border border-line bg-white/70 px-3.5 py-2 text-[10px] font-semibold tracking-[0.12em] text-forest"><span class="size-1.5 rounded-full bg-forest"></span>A LITTLE DIRECTION FOR YOUR DIGITAL WORLD</div>
+        <h1 id="hero-title" class="max-w-xl font-display text-5xl leading-[1.08] tracking-[-0.045em] sm:text-6xl lg:text-[68px]">Your web.<br>Your age.<br><span class="relative inline-block text-forest">Your privacy.<svg class="absolute -bottom-2 left-0 h-4 w-full text-lime" viewBox="0 0 350 18" preserveAspectRatio="none" aria-hidden="true"><path d="M2 11C90 2 205 2 347 10" stroke="currentColor" stroke-width="7" fill="none" stroke-linecap="round"/></svg></span></h1>
+        <p class="mt-8 max-w-md text-[15px] leading-7 text-muted">Check your age, connect your browser, and use a signed pass to unlock eligible content. A smaller proof for a more thoughtful web.</p>
+        <div class="mt-7 flex flex-wrap items-center gap-4">
+          <a href="#how-it-works" class="group flex items-center gap-2 text-xs font-semibold text-forest">Let’s walk you through it <span class="transition group-hover:translate-x-1"><svg class="size-4" aria-hidden="true"><use href="#icon-arrow"/></svg></span></a>
+          <span class="text-[11px] text-muted">Four age bands · one browser pass</span>
+        </div>
+
+        <div class="relative mt-10 overflow-hidden rounded-2xl border border-line bg-white/75 p-5" aria-label="What an age pass shares">
+          <div class="orbit-grid absolute inset-y-0 right-0 w-1/3 opacity-35" aria-hidden="true"></div>
+          <div class="relative flex items-center gap-4">
+            <span class="grid size-12 shrink-0 place-items-center rounded-2xl bg-mist text-forest"><svg class="size-6" aria-hidden="true"><use href="#icon-lock"/></svg></span>
+            <div><p class="text-xs font-semibold">An age answer. Less personal information.</p><p class="mt-1.5 text-[11px] leading-5 text-muted">The browsing credential has no birthdate or account ID.<br>It carries the proof needed to check access.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <section id="get-started" class="scroll-mt-8 rounded-[24px] border border-line bg-white p-6 shadow-[0_15px_60px_-25px_rgba(23,61,54,0.18)] sm:p-8" aria-labelledby="card-title">
+        <div class="mb-7 flex items-center justify-between gap-3"><span id="card-title" class="text-[10px] font-semibold tracking-[0.16em] text-muted">YOUR WEB COMPANION</span><span class="flex items-center gap-1.5 rounded-full bg-mist px-2.5 py-1.5 text-[9px] font-medium text-forest"><svg class="size-3" aria-hidden="true"><use href="#icon-lock"/></svg>Account &amp; age check</span></div>
+        <ol class="mb-8 grid grid-cols-3 gap-2 border-b border-line pb-6" aria-label="Setup progress">
+          <li id="progress-account" class="progress-step" data-state="active" aria-current="step"><span class="progress-number">1</span>Account</li>
+          <li id="progress-check" class="progress-step" data-state="pending"><span class="progress-number">2</span>Access choice</li>
+          <li id="progress-browser" class="progress-step" data-state="pending"><span class="progress-number">3</span>Browser</li>
+        </ol>
+        <p id="setupNotice" class="msg bad mb-5" role="status" hidden></p>
+
+        <div id="auth">
+          <h2 id="authTitle" class="font-display text-3xl tracking-[-0.035em]">Start with your account.</h2>
+          <p id="authSubtitle" class="mb-7 mt-3 text-xs leading-6 text-muted">One account connects your age check and your Chrome browser.</p>
+          <form id="authForm" class="space-y-5">
+            <label for="email" class="block text-xs font-semibold">Email address<input id="email" type="email" required maxlength="254" autocomplete="email" placeholder="you@example.com" class="mt-2 block w-full rounded-xl border border-line bg-paper/50 px-4 py-3.5 text-sm font-normal placeholder:text-muted/60"></label>
+            <div><label for="password" class="block text-xs font-semibold">Password</label><div class="relative mt-2"><input id="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters" class="block w-full rounded-xl border border-line bg-paper/50 px-4 py-3.5 pr-16 text-sm placeholder:text-muted/60"><button id="togglePassword" type="button" class="absolute inset-y-0 right-0 px-4 text-[10px] font-semibold text-muted hover:text-forest" aria-label="Show password" aria-pressed="false">Show</button></div></div>
+            <button id="authBtn" type="submit" class="flex w-full items-center justify-center gap-3 rounded-xl bg-forest px-5 py-3.5 text-xs font-semibold text-white transition hover:bg-forest-light"><span id="authBtnText">Create my account</span><svg class="size-4" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+          </form>
+          <p class="mt-5 text-center text-xs text-muted"><span id="swapPrompt">Already have an account?</span> <button id="swap" class="ml-1 font-semibold text-forest underline decoration-forest/25 underline-offset-4 hover:decoration-forest" type="button">Sign in</button></p>
+          <p id="authMsg" class="msg" role="status" aria-live="polite"></p>
+          <div class="mt-7 flex items-start gap-2.5 border-t border-line pt-5 text-[10px] leading-5 text-muted"><svg class="mt-0.5 size-4 shrink-0 text-forest" aria-hidden="true"><use href="#icon-lock"/></svg><p>Supabase Auth stores your email and a password hash. Turn off email confirmation in Supabase to continue without a confirmation email.</p></div>
+        </div>
+
+        <div id="choice" hidden>
+          <h2 class="font-display text-3xl tracking-[-0.035em]">How would you like to continue?</h2>
+          <p class="mb-6 mt-3 text-xs leading-6 text-muted">Choose an access path. You can upgrade a child-limited account with an ID check later.</p>
+          <button id="chooseId" type="button" class="flex w-full items-center justify-between gap-4 rounded-xl border border-line bg-white px-4 py-4 text-left transition hover:border-forest"><span><strong class="block text-xs">Upload ID</strong><span class="mt-1 block text-[10px] leading-5 text-muted">Read the date of birth from an ID photo on this device. The date is stored as unverified.</span></span><svg class="size-5 shrink-0 text-forest" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+          <button id="chooseChild" type="button" class="mt-3 flex w-full items-center justify-between gap-4 rounded-xl border border-line bg-mist/70 px-4 py-4 text-left transition hover:border-forest"><span><strong class="block text-xs">I don’t have an ID</strong><span class="mt-1 block text-[10px] leading-5 text-muted">Use a child-limited pass. Rated 13+, 16+, and 18+ websites stay blocked.</span></span><svg class="size-5 shrink-0 text-forest" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+          <p id="choiceMsg" class="msg" role="status" aria-live="polite"></p>
+          <button id="outChoice" class="mt-5 text-[11px] text-muted underline underline-offset-4" type="button">Sign out of this account</button>
+        </div>
+
+        <div id="ocr" hidden>
+          <h2 class="font-display text-3xl tracking-[-0.035em]">Read the date from your ID.</h2>
+          <p class="mb-5 mt-3 text-xs leading-6 text-muted">Choose a clear, straight-on photo of the front of your license. OCR runs in this browser; the image is not uploaded. The detected date is read-only.</p>
+          <label for="ocrFile" class="block text-xs font-semibold">ID photo<input id="ocrFile" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" class="mt-2 block w-full rounded-xl border border-line bg-paper/50 px-3 py-3 text-xs font-normal"></label>
+          <button id="readId" type="button" class="mt-3 w-full rounded-xl border border-line px-4 py-3 text-xs font-semibold text-forest transition hover:bg-paper">Read date of birth</button>
+          <label for="ocrDob" class="mt-5 block text-xs font-semibold">Detected date of birth (read-only)<input id="ocrDob" type="text" readonly aria-readonly="true" placeholder="Read your ID first" class="mt-2 block w-full rounded-xl border border-line bg-paper/50 px-4 py-3.5 text-sm font-normal"></label>
+          <p class="mt-3 text-[10px] leading-5 text-muted">OCR can misread dates. This date is unverified and cannot unlock rated websites. If it is wrong, try a clearer photo.</p>
+          <button id="saveOcr" type="button" disabled class="mt-4 w-full rounded-xl bg-forest px-5 py-3.5 text-xs font-semibold text-white transition hover:bg-forest-light">Save date</button>
+          <p id="ocrMsg" class="msg" role="status" aria-live="polite"></p>
+          <button id="backChoice" class="mt-4 text-[11px] text-muted underline underline-offset-4" type="button">Back to access choices</button>
+        </div>
+
+        <div id="ocrResult" hidden>
+          <h2 class="font-display text-3xl tracking-[-0.035em]">Date saved.</h2>
+          <div class="pass-status mt-6" data-eligible="false"><div class="flex items-center justify-between"><span id="ocrResultStatus" class="text-[10px] font-semibold uppercase tracking-[0.12em]">OCR age estimate · not verified</span><svg class="size-5" aria-hidden="true"><use href="#icon-id"/></svg></div><strong id="ocrResultBand" class="mt-4 block font-display text-3xl">Adult (18+)</strong><p id="ocrResultDate" class="mt-2 text-xs leading-6">Date of birth saved to your profile.</p></div>
+          <p id="ocrResultMessage" class="mt-4 text-xs leading-6 text-muted">OCR cannot verify the document or your identity. This result does not issue an age pass; rated sites remain locked.</p>
+          <a id="downloadExtension" href="/downloads/webcompass-extension.zip" download class="mt-5 flex w-full items-center justify-center gap-3 rounded-xl bg-forest px-5 py-3.5 text-xs font-semibold text-white transition hover:bg-forest-light">Download Chrome extension <svg class="size-4" aria-hidden="true"><use href="#icon-arrow"/></svg></a>
+          <a href="#browser-guide" class="mt-4 block text-center text-[11px] font-semibold text-forest underline underline-offset-4">View Chrome installation steps</a>
+          <button id="backFromOcrResult" class="mt-5 text-[11px] text-muted underline underline-offset-4" type="button">Back to access choices</button>
+        </div>
+
+        <div id="verify" hidden>
+          <span class="mb-5 grid size-12 place-items-center rounded-2xl bg-mist text-forest"><svg class="size-6" aria-hidden="true"><use href="#icon-id"/></svg></span>
+          <h2 class="font-display text-3xl tracking-[-0.035em]">A quick age check.</h2>
+          <p class="mb-6 mt-3 text-xs leading-6 text-muted">Scan your ID and take a live selfie. An automatic check confirms the document and compares your selfie with its photo. Complete this once, then use your age pass to browse.</p>
+          <div class="mb-6 rounded-xl bg-paper p-4"><p class="text-[11px] font-semibold">Before you start</p><ul class="mt-2 space-y-2 text-[11px] leading-5 text-muted"><li class="flex gap-2"><span class="text-forest">✓</span>Use a valid, readable document.</li><li class="flex gap-2"><span class="text-forest">✓</span>Choose a bright spot without glare.</li><li class="flex gap-2"><span class="text-forest">✓</span>Return here when your check finishes.</li></ul></div>
+          <button id="start" type="button" class="flex w-full items-center justify-center gap-3 rounded-xl bg-forest px-5 py-3.5 text-xs font-semibold text-white transition hover:bg-forest-light">Verify my age <svg class="size-4" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+          <button id="refresh" type="button" class="mt-3 w-full rounded-xl border border-line px-4 py-3 text-xs font-medium text-forest transition hover:bg-paper">I finished — check my status</button>
+          <p id="verifyMsg" class="msg" role="status" aria-live="polite"></p>
+          <p class="mt-5 text-[10px] leading-5 text-muted">Veriff processes your ID and selfie. WebCompass stores your verified birthdate, never your ID image or selfie. We request deletion of the verification session; provider retention may apply. Websites receive neither your document nor your birthdate.</p>
+          <button id="outVerify" class="mt-5 text-[11px] text-muted underline underline-offset-4" type="button">Sign out of this account</button>
+        </div>
+
+        <div id="done" hidden>
+          <h2 id="doneTitle" class="font-display text-3xl tracking-[-0.035em]">Your age check is complete.</h2>
+          <div id="pass" class="pass-status mt-6" data-eligible="true"><div class="flex items-center justify-between"><span class="text-[10px] font-semibold uppercase tracking-[0.12em]">Age eligibility</span><svg class="size-5" aria-hidden="true"><use href="#icon-check"/></svg></div><strong id="passText" class="mt-4 block font-display text-5xl tracking-tight">18+</strong><p id="passDescription" class="mt-2 text-xs leading-6">Your account is eligible for the current release.</p></div>
+          <p id="doneNext" class="mb-5 mt-5 text-xs leading-6 text-muted">Next, connect Chrome. In the extension, sign in to this same account and choose <strong class="font-semibold text-ink">Activate my pass</strong>.</p>
+          <a id="connectBrowser" href="#browser-guide" class="flex w-full items-center justify-center gap-3 rounded-xl bg-forest px-5 py-3.5 text-xs font-semibold text-white transition hover:bg-forest-light">Show me the Chrome setup <svg class="size-4" aria-hidden="true"><use href="#icon-arrow"/></svg></a>
+          <button id="upgradeId" class="mt-4 block w-full text-center text-[11px] text-forest underline underline-offset-4" type="button" hidden>Upload ID to update this access level</button>
+          <button id="out" class="mt-5 block w-full text-center text-[11px] text-muted underline underline-offset-4" type="button">Sign out</button>
+          <p id="doneMsg" class="msg" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </section>
+
+    <section id="how-it-works" class="scroll-mt-8 border-y border-line bg-white/60" aria-labelledby="how-title">
+      <div class="mx-auto max-w-6xl px-6 py-14 md:px-8 md:py-18">
+        <div class="mb-9 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="mb-3 text-[10px] font-semibold tracking-[0.16em] text-forest">YOUR FIRST FEW CLICKS</p><h2 id="how-title" class="font-display text-3xl tracking-[-0.035em] sm:text-4xl">From sign-up to your next click.</h2></div><p class="max-w-xs text-xs leading-6 text-muted">A clear path to getting started.<br>No guesswork between steps.</p></div>
+        <ol class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <li class="rounded-2xl border border-line bg-white p-5"><span class="guide-number">01</span><h3 class="mb-2 mt-5 text-sm font-semibold">Create your account</h3><p class="text-xs leading-6 text-muted">Use your email and a password, then continue on this page. No confirmation email needed.</p><a href="#get-started" class="mt-5 inline-flex items-center gap-2 text-[11px] font-semibold text-forest">Start here <svg class="size-3.5" aria-hidden="true"><use href="#icon-arrow"/></svg></a></li>
+          <li class="rounded-2xl border border-line bg-white p-5"><span class="guide-number">02</span><h3 class="mb-2 mt-5 text-sm font-semibold">Choose your access</h3><p class="text-xs leading-6 text-muted">Upload an ID for an age check, or choose the child-limited pass if you don’t have an ID.</p><span class="mt-5 inline-block rounded-full bg-mist px-2.5 py-1 text-[9px] font-medium text-forest">ID check can be added later</span></li>
+          <li class="rounded-2xl border border-line bg-white p-5"><span class="guide-number">03</span><h3 class="mb-2 mt-5 text-sm font-semibold">Connect Chrome</h3><p class="text-xs leading-6 text-muted">Load the extension, open it from Chrome’s toolbar, and sign in using the same verified account.</p><a href="#browser-guide" class="mt-5 inline-flex items-center gap-2 text-[11px] font-semibold text-forest">See Chrome setup <svg class="size-3.5" aria-hidden="true"><use href="#icon-arrow"/></svg></a></li>
+          <li class="rounded-2xl border border-line bg-white p-5"><span class="guide-number">04</span><h3 class="mb-2 mt-5 text-sm font-semibold">Activate your pass</h3><p class="text-xs leading-6 text-muted">Choose “Activate my pass.” Then open a rated site. Your browser checks the band, expiry, and device proof before opening it.</p><a href="http://localhost:3000/restricted" class="mt-5 inline-flex items-center gap-2 text-[11px] font-semibold text-forest">Open the test page <svg class="size-3.5" aria-hidden="true"><use href="#icon-arrow"/></svg></a></li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="browser-guide" class="mx-auto max-w-6xl scroll-mt-8 px-6 py-14 md:px-8 md:py-18" aria-labelledby="browser-title">
+      <div class="grid overflow-hidden rounded-[24px] border border-line bg-white lg:grid-cols-[0.75fr_1.25fr]">
+        <div class="relative overflow-hidden bg-forest p-7 text-white md:p-9">
+          <p class="text-[10px] font-semibold tracking-[0.16em] text-lime">LET’S CONNECT YOUR BROWSER</p><h2 id="browser-title" class="mt-5 font-display text-4xl leading-[1.15] tracking-[-0.035em]">Your pass has<br>a place in Chrome.</h2><p class="mt-5 max-w-xs text-xs leading-6 text-white/65">The extension connects your verified account to this browser. Install it once, then activate your device.</p>
+          <div class="relative mt-9 rounded-xl border border-white/15 bg-white/5 p-4" aria-label="Chrome extension toolbar illustration"><div class="flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-white/25"></span><span class="size-1.5 rounded-full bg-white/25"></span><span class="size-1.5 rounded-full bg-white/25"></span><span class="ml-3 flex-1 rounded-md bg-white/10 px-3 py-2 text-[10px] text-white/55">Your Chrome browser</span><span class="ml-2 grid size-8 place-items-center rounded-lg bg-lime text-forest"><svg class="size-5" aria-hidden="true"><use href="#icon-browser"/></svg></span></div><div class="mt-5 rounded-lg bg-paper p-4 text-ink"><p class="text-[11px] font-semibold">WebCompass</p><p class="mt-1 text-[10px] text-muted">Account → device → signed pass</p><div class="mt-3 h-1 w-2/3 rounded-full bg-line"></div><div class="mt-2 h-1 w-1/3 rounded-full bg-line"></div></div><p class="mt-3 text-[9px] text-white/50">Illustration of the connection flow</p></div>
+        </div>
+        <div class="p-6 sm:p-8 md:p-9">
+          <div class="mb-7 flex gap-2 rounded-2xl bg-paper p-1.5" role="tablist" aria-label="Chrome setup help">
+            <button id="install-tab" class="guide-tab flex-1" type="button" role="tab" aria-selected="true" aria-controls="install-panel" tabindex="0">Install the extension</button>
+            <button id="activate-tab" class="guide-tab flex-1" type="button" role="tab" aria-selected="false" aria-controls="activate-panel" tabindex="-1">Activate &amp; use</button>
+          </div>
+          <div id="install-panel" role="tabpanel" aria-labelledby="install-tab" tabindex="0">
+            <h3 class="text-sm font-semibold">For this local hackathon build</h3><p class="mb-5 mt-2 text-xs leading-6 text-muted">You’ll need the project’s extension files on your computer.</p>
+            <ol class="space-y-5 text-xs leading-6"><li class="flex gap-3"><span class="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-mist text-[9px] font-semibold text-forest">1</span><div>Open <code class="rounded-md bg-paper px-2 py-1 text-[11px] font-medium text-forest">chrome://extensions</code> in Chrome.<button id="copyExtensions" class="ml-2 text-[10px] font-semibold text-forest underline underline-offset-4" type="button">Copy address</button></div></li><li class="flex gap-3"><span class="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-mist text-[9px] font-semibold text-forest">2</span><p>Turn on <strong>Developer mode</strong> in the top-right corner.</p></li><li class="flex gap-3"><span class="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-mist text-[9px] font-semibold text-forest">3</span><p>Click <strong>Load unpacked</strong> and choose the folder containing <code class="rounded bg-paper px-1.5 py-0.5 text-[11px]">manifest.json</code>.</p></li><li class="flex gap-3"><span class="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-mist text-[9px] font-semibold text-forest">4</span><p>Open Chrome’s extensions menu and pin <strong>WebCompass</strong>. Disable the older AgeGate Demo extension if you still have it installed.</p></li></ol>
+            <p id="copyMsg" class="msg" role="status" aria-live="polite"></p><button id="nextGuide" class="mt-7 flex items-center gap-2 text-xs font-semibold text-forest" type="button">Installed? Activate your pass <svg class="size-4" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+          </div>
+          <div id="activate-panel" role="tabpanel" aria-labelledby="activate-tab" tabindex="0" hidden>
+            <h3 class="text-sm font-semibold">One account, the same browser</h3><p class="mb-5 mt-2 text-xs leading-6 text-muted">Complete your ID check on this website before activating the extension.</p>
+            <ol class="space-y-5 text-xs leading-6"><li class="flex gap-3"><span class="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-mist text-[9px] font-semibold text-forest">1</span><p>Click the extension button in Chrome’s toolbar.</p></li><li class="flex gap-3"><span class="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-mist text-[9px] font-semibold text-forest">2</span><p>Enter the <strong>same email and password</strong> you used here, then click <strong>Log in</strong>.</p></li><li class="flex gap-3"><span class="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-mist text-[9px] font-semibold text-forest">3</span><p>Choose <strong>Activate my pass</strong>. Eligible accounts receive a signed credential for this browser.</p></li><li class="flex gap-3"><span class="mt-1 grid size-5 shrink-0 place-items-center rounded-full bg-mist text-[9px] font-semibold text-forest">4</span><p>Open the test page below. If it was already open, <strong>reload it</strong> so the extension can check your new pass.</p></li></ol>
+            <a href="http://localhost:3000/restricted" class="mt-7 inline-flex items-center gap-3 rounded-xl bg-forest px-5 py-3 text-xs font-semibold text-white hover:bg-forest-light">Try my pass <svg class="size-4" aria-hidden="true"><use href="#icon-arrow"/></svg></a><p class="mt-4 text-[10px] leading-5 text-muted">The pass lasts one hour. Activate again when it expires. Keep the WebCompass server on port 3000 running.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="site-guide" class="mx-auto max-w-6xl scroll-mt-8 px-6 pb-14 md:px-8" aria-labelledby="sites-title">
+      <p class="mb-3 text-[10px] font-semibold tracking-[0.16em] text-forest">TRY YOUR BROWSER PASS</p>
+      <h2 id="sites-title" class="font-display text-3xl tracking-tight">Same sites. Different age bands.</h2>
+      <p class="mb-6 mt-3 max-w-2xl text-xs leading-6 text-muted">These three harmless example domains have project sample ratings. They demonstrate the access rules without visiting mature content. An unverified or expired pass is blocked on all three.</p>
+      <div class="overflow-x-auto rounded-2xl border border-line bg-white"><table class="w-full min-w-[520px] text-left text-xs"><caption class="sr-only">Project example site access by age band</caption><thead class="bg-mist"><tr><th class="p-4">Example site</th><th class="p-4">Under 13</th><th class="p-4">13–15</th><th class="p-4">16–17</th><th class="p-4">18+</th></tr></thead><tbody class="divide-y divide-line"><tr><th class="p-4"><a class="text-forest underline" href="https://example.org/" rel="noreferrer">example.org · 13+</a></th><td class="p-4">Blocked</td><td class="p-4 text-forest">Allowed</td><td class="p-4 text-forest">Allowed</td><td class="p-4 text-forest">Allowed</td></tr><tr><th class="p-4"><a class="text-forest underline" href="https://example.net/" rel="noreferrer">example.net · 16+</a></th><td class="p-4">Blocked</td><td class="p-4">Blocked</td><td class="p-4 text-forest">Allowed</td><td class="p-4 text-forest">Allowed</td></tr><tr><th class="p-4"><a class="text-forest underline" href="https://example.com/" rel="noreferrer">example.com · 18+</a></th><td class="p-4">Blocked</td><td class="p-4">Blocked</td><td class="p-4">Blocked</td><td class="p-4 text-forest">Allowed</td></tr></tbody></table></div>
+      <p class="mt-4 text-[10px] leading-5 text-muted">The extension covers YouTube, Instagram, TikTok, Reddit, X/Twitter, Facebook, Snapchat, Discord, Twitch, and Pinterest with sample project policies. These illustrate our project’s rules and do not certify a platform’s official minimum age or rate individual pages. Sign out of the extension when sharing this browser.</p>
+    </section>
+
+    <section id="privacy" class="mx-auto max-w-6xl scroll-mt-8 px-6 pb-14 md:px-8 md:pb-18" aria-labelledby="privacy-title">
+      <div class="mb-8"><p class="mb-3 text-[10px] font-semibold tracking-[0.16em] text-forest">KNOW WHAT YOU SHARE</p><h2 id="privacy-title" class="font-display text-3xl tracking-[-0.035em] sm:text-4xl">A clear answer to “what happens to my data?”</h2></div>
+      <div class="grid gap-5 md:grid-cols-3">
+        <article class="rounded-2xl border border-line bg-white/70 p-6"><span class="mb-4 grid size-10 place-items-center rounded-xl bg-mist text-forest"><svg class="size-5" aria-hidden="true"><use href="#icon-id"/></svg></span><h3 class="text-sm font-semibold">Your ID photo</h3><p class="mt-3 text-xs leading-6 text-muted">The current demo runs OCR in your browser. The photo is not uploaded; only the date you save is sent to your profile. OCR does not check whether an ID is genuine or belongs to you.</p></article>
+        <article class="rounded-2xl border border-line bg-white/70 p-6"><span class="mb-4 grid size-10 place-items-center rounded-xl bg-sand text-forest"><svg class="size-5" aria-hidden="true"><use href="#icon-lock"/></svg></span><h3 class="text-sm font-semibold">Your account and date</h3><p class="mt-3 text-xs leading-6 text-muted">Supabase Auth stores your email and password hash. A date saved from OCR is marked unverified and does not determine website access. Provider verification, when configured, is stored separately.</p></article>
+        <article class="rounded-2xl border border-line bg-white/70 p-6"><span class="mb-4 grid size-10 place-items-center rounded-xl bg-mist text-forest"><svg class="size-5" aria-hidden="true"><use href="#icon-browser"/></svg></span><h3 class="text-sm font-semibold">Your browsing pass</h3><p class="mt-3 text-xs leading-6 text-muted">A real pass contains a signed age band, expiry, credential ID, format version, and public device key. It does not contain your birthdate or account ID. OCR and demo results do not issue a real pass.</p></article>
+      </div>
+    </section>
+
+    <section class="border-t border-line bg-white/60" aria-labelledby="faq-title">
+      <div class="mx-auto grid max-w-6xl gap-9 px-6 py-14 md:grid-cols-[0.65fr_1.35fr] md:px-8 md:py-16">
+        <div><p class="mb-3 text-[10px] font-semibold tracking-[0.16em] text-forest">A FEW HELPFUL ANSWERS</p><h2 id="faq-title" class="font-display text-4xl tracking-[-0.035em]">Before you<br>head out.</h2><p class="mt-4 max-w-xs text-xs leading-6 text-muted">Getting stuck is normal.<br>Here’s how to get moving again.</p></div>
+        <div class="divide-y divide-line">
+          <details class="group py-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-xs font-semibold">Does this work on every website?<span class="faq-plus text-xl font-light text-muted transition" aria-hidden="true">+</span></summary><p class="mt-3 max-w-lg text-xs leading-6 text-muted">This build checks top-level visits to the domains in its small rating list. Sites outside that list open normally. It works only in Chrome while the extension is installed and enabled; another browser can bypass it.</p></details>
+          <details class="group py-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-xs font-semibold">What if I don’t have an ID?<span class="faq-plus text-xl font-light text-muted transition" aria-hidden="true">+</span></summary><p class="mt-3 max-w-lg text-xs leading-6 text-muted">Choose the child-limited path. It assigns the most restrictive Under 13 pass; this is not proof of your actual age, and all rated sites requiring 13+ remain blocked. You can add an ID check later.</p></details>
+          <details class="group py-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-xs font-semibold">Does uploading an ID verify my age?<span class="faq-plus text-xl font-light text-muted transition" aria-hidden="true">+</span></summary><p class="mt-3 max-w-lg text-xs leading-6 text-muted">No. The demo reads a DOB with browser OCR and saves it as unverified. Demo verification is simulated; it does not authenticate an ID or issue an age pass.</p></details>
+          <details class="group py-5"><summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-xs font-semibold">Why does a rated site remain locked?<span class="faq-plus text-xl font-light text-muted transition" aria-hidden="true">+</span></summary><p class="mt-3 max-w-lg text-xs leading-6 text-muted">A real age pass requires a provider-verified profile. OCR and demo results do not activate the extension pass.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-line"><div class="mx-auto flex max-w-6xl flex-col justify-between gap-4 px-6 py-7 text-[10px] text-muted sm:flex-row md:px-8"><p><span class="font-semibold text-forest">WebCompass</span> · A little direction for your digital world.</p><p>Built by 404 Sleep Not Found · Hackathon edition</p></div></footer>
+  <noscript><p class="msg bad">Enable JavaScript to create an account and use the verification flow. The setup guide above is still available.</p></noscript>
+
+  <script src="/client-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@6.0.1/dist/tesseract.min.js"></script>
+  <script type="module">
+  import { ageLabelFromDob, dateFromOcr } from '/ocr.js';
+  // Keep the values from your currently working local file here.
+  // These are PUBLIC client settings. Never use a Supabase service-role/secret key.
+  const SUPABASE_URL=window.WEBCOMPASS_CONFIG?.supabaseUrl;
+  const SUPABASE_ANON_KEY=window.WEBCOMPASS_CONFIG?.supabaseKey;
+  const DEMO_VERIFICATION=window.WEBCOMPASS_CONFIG?.demoVerification === true;
+  const SERVER_URL=location.origin;
+  const BAND_LABELS={under13:'Under 13','13to15':'13–15','16to17':'16–17','18plus':'18+'};
+  const $ = id => document.getElementById(id);
+  let mode = 'signup';
+  let db = null;
+  let busy = false;
+  let profilesAvailable = false;
+  let verificationAvailable = false;
+  let ocrSaved = false;
+  let pollTimer = null, pollCount = 0;
+  const CHECK_MESSAGES = {
+    pending: 'Your ID and selfie check is processing. We will check again automatically…',
+    not_started: 'Ready for your one-time ID and selfie check.',
+    resubmission_requested: 'The check needs another attempt. Choose “Verify my age” to continue with the same session.',
+    declined: 'Your ID and selfie could not be verified. You can start another check; access remains locked.',
+    expired: 'Your verification session expired. Start another check when you are ready.',
+    abandoned: 'The check was not completed. Start another check when you are ready.',
+    invalid_result: 'The check did not return a verified full birthdate from a supported ID. Please try another supported document.',
+    not_connected: 'Automatic verification is not connected yet. Your account is ready; rated sites remain locked.'
+  };
+  function stopPolling() { clearTimeout(pollTimer); pollTimer = null; }
+  function schedulePoll() {
+    stopPolling();
+    if (pollCount >= 36) { say('verifyMsg','Your result is taking longer. Use “I finished — check my status” to check again.'); return; }
+    pollTimer = setTimeout(async () => {
+      pollTimer = null;
+      if (document.hidden || busy) { schedulePoll(); return; }
+      pollCount++;
+      try { await route(); }
+      catch (error) { say('verifyMsg',error.message,true); }
+    },5000);
+  }
+
+  function show(view) {
+    ['auth','choice','ocr','ocrResult','verify','done'].forEach(id => $(id).hidden = id !== view);
+    const stage = view === 'auth' ? 0 : view === 'done' ? 2 : 1;
+    ['progress-account','progress-check','progress-browser'].forEach((id, index) => {
+      $(id).dataset.state = index < stage ? 'complete' : index === stage ? 'active' : 'pending';
+      if (index === stage) $(id).setAttribute('aria-current','step');
+      else $(id).removeAttribute('aria-current');
+    });
+  }
+  function say(id, text, bad = false) {
+    $(id).textContent = text;
+    $(id).className = bad ? 'msg bad' : 'msg';
+  }
+  function setBusy(value) {
+    busy = value;
+    ['authBtn','swap','start','refresh','out','outVerify','outChoice','chooseId','chooseChild','upgradeId','ocrFile','readId','saveOcr','backChoice'].forEach(id => $(id).disabled = value);
+    $('start').disabled = value || !verificationAvailable;
+    $('chooseId').disabled = value || !profilesAvailable;
+    $('chooseChild').disabled = value || !profilesAvailable;
+    $('saveOcr').disabled = value || !$('ocrDob').value || ocrSaved;
+    $('authForm').setAttribute('aria-busy', String(value));
+  }
+  async function api(path, method = 'GET', input) {
+    if (!db) throw new Error('Account sign-in is not connected yet.');
+    const { data, error } = await db.auth.getSession();
+    if (error || !data?.session?.access_token) { show('auth'); throw new Error('Your account session expired. Please sign in again.'); }
+    let response;
+    try {
+      response = await fetch(SERVER_URL + path, { method, headers: { authorization: 'Bearer ' + data.session.access_token,
+        ...(input === undefined ? {} : { 'content-type': 'application/json' }) }, body: input === undefined ? undefined : JSON.stringify(input),
+        signal: AbortSignal.timeout(12000), cache: 'no-store' });
+    } catch { throw new Error('We could not reach the local backend. Keep the server on port 3000 running, then try again.'); }
+    let result;
+    try { result = await response.json(); }
+    catch { throw new Error('The backend returned an unreadable response. Please try again.'); }
+    if (!response.ok) throw new Error(result.error || 'The age check could not finish. Please try again.');
+    return result;
+  }
+  async function route() {
+    const status = await api('/verify/status');
+    profilesAvailable = status.profiles_available === true;
+    verificationAvailable = status.verification_available === true;
+    $('start').disabled = busy || !verificationAvailable;
+    if (!profilesAvailable) {
+      show('choice');
+      setBusy(busy);
+      say('choiceMsg','Open Supabase SQL Editor and run the latest schema.sql to enable secure profile updates. No service-role key is needed for OCR or the child-limited option. Then reload this page.');
+      return status;
+    }
+    setBusy(busy);
+    if (status.child || status.verified) {
+      stopPolling();
+      const band = status.band;
+      if (!Object.hasOwn(BAND_LABELS,band)) throw new Error('The backend did not return a supported age band.');
+      $('pass').dataset.eligible = 'true';
+      $('passText').textContent = BAND_LABELS[band];
+      $('doneTitle').textContent = status.child ? 'Your account is set to Under 13.' : 'Your age band is ready.';
+      $('passDescription').textContent = status.child
+        ? 'Because you selected “I don’t have an ID,” your account is set to Under 13. Rated websites requiring age 13 or older stay blocked. This is a self-selected restriction, not verified proof of age.'
+        : 'Your browser compares this band with each rated website. The pass does not include your birth date.';
+      $('doneNext').textContent = 'Next, connect Chrome. In the extension, sign in to this same account and choose “Activate my pass.”';
+      $('connectBrowser').hidden = false;
+      $('upgradeId').hidden = !status.child;
+      show('done');
+      return status;
+    }
+    if (status.ocr_birth_date) {
+      renderOcrResult(status.ocr_birth_date, DEMO_VERIFICATION);
+      show('ocrResult');
+      return status;
+    }
+    if (!status.verified) {
+      const state = status.verification_state;
+      if (['pending','resubmission_requested','declined','expired','abandoned','invalid_result'].includes(state)) {
+        show('verify');
+        say('verifyMsg',CHECK_MESSAGES[state] || CHECK_MESSAGES.not_connected);
+      } else {
+        show('choice');
+        say('choiceMsg','');
+      }
+      if (state === 'pending') schedulePoll(); else stopPolling();
+      return status;
+    }
+  }
+
+  $('togglePassword').onclick = () => {
+    const visible = $('password').type === 'password';
+    $('password').type = visible ? 'text' : 'password';
+    $('togglePassword').textContent = visible ? 'Hide' : 'Show';
+    $('togglePassword').setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+    $('togglePassword').setAttribute('aria-pressed', String(visible));
+  };
+  $('swap').onclick = () => {
+    if (busy) return;
+    mode = mode === 'signup' ? 'login' : 'signup';
+    const signup = mode === 'signup';
+    $('authTitle').textContent = signup ? 'Start with your account.' : 'Welcome back.';
+    $('authSubtitle').textContent = signup ? 'One account connects your age check and your Chrome browser.' : 'Sign in to check your status and connect your browser.';
+    $('authBtnText').textContent = signup ? 'Create my account' : 'Sign in to my account';
+    $('swapPrompt').textContent = signup ? 'Already have an account?' : 'New to WebCompass?';
+    $('swap').textContent = signup ? 'Sign in' : 'Create an account';
+    $('password').autocomplete = signup ? 'new-password' : 'current-password';
+    $('password').minLength = signup ? 8 : 1;
+    $('password').placeholder = signup ? 'At least 8 characters' : 'Your account password';
+    say('authMsg','');
+  };
+  $('authForm').onsubmit = async event => {
+    event.preventDefault();
+    if (busy || !db) return;
+    setBusy(true);
+    say('authMsg', mode === 'signup' ? 'Creating your account…' : 'Signing you in…');
+    try {
+      const email = $('email').value.trim(), password = $('password').value;
+      const { data, error } = mode === 'signup'
+        ? await db.auth.signUp({ email, password })
+        : await db.auth.signInWithPassword({ email, password });
+      $('password').value = '';
+      if (error) throw new Error(error.message);
+      if (!data?.session) {
+        say('authMsg','Your account was created in Supabase, but email confirmation is enabled. Turn it off in Supabase Auth settings, then create the account again.',true);
+        return;
+      }
+      say('authMsg','');
+      say('verifyMsg','Checking your account’s age-verification status…');
+      try { await route(); }
+      catch (error) { say($('auth').hidden ? 'verifyMsg' : 'authMsg', error.message, true); }
+    } catch (error) { say('authMsg', error.message || 'Sign-in could not finish. Please try again.', true); }
+    finally { setBusy(false); }
+  };
+  $('chooseId').onclick = () => {
+    if (busy) return;
+    show('ocr');
+    say('ocrMsg','Choose a clear photo. The image stays in this browser.');
+  };
+  async function enhanceForOcr(file) {
+    const image = await createImageBitmap(file);
+    const scale = Math.min(2.5, 2200 / Math.max(image.width, image.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(image.width * scale);
+    canvas.height = Math.round(image.height * scale);
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    image.close();
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height);
+    for (let index = 0; index < pixels.data.length; index += 4) {
+      const gray = pixels.data[index] * 0.299 + pixels.data[index + 1] * 0.587 + pixels.data[index + 2] * 0.114;
+      const contrast = Math.max(0, Math.min(255, (gray - 128) * 1.35 + 128));
+      pixels.data[index] = pixels.data[index + 1] = pixels.data[index + 2] = contrast;
+    }
+    context.putImageData(pixels, 0, 0);
+    return canvas;
+  }
+  $('ocrFile').onchange = () => {
+    $('ocrDob').value = '';
+    ocrSaved = false;
+    $('saveOcr').disabled = true;
+    say('ocrMsg','');
+  };
+  $('readId').onclick = async () => {
+    if (busy) return;
+    const file = $('ocrFile').files[0];
+    if (!file || !['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+      say('ocrMsg','Choose a JPEG, PNG, or WebP image smaller than 10 MB.',true);
+      return;
+    }
+    if (!window.Tesseract) { say('ocrMsg','The OCR engine could not load. Check your internet connection and try again.',true); return; }
+    $('ocrDob').value = '';
+    ocrSaved = false;
+    setBusy(true); say('ocrMsg','Reading the photo on this device…');
+    try {
+      const firstPass = await window.Tesseract.recognize(file,'eng');
+      let text = firstPass.data.text;
+      let suggested = dateFromOcr(text);
+      if (!suggested) {
+        say('ocrMsg','Enhancing the photo and trying again…');
+        const enhanced = await enhanceForOcr(file);
+        const secondPass = await window.Tesseract.recognize(enhanced,'eng',{ tessedit_pageseg_mode: 11 });
+        text += '\n' + secondPass.data.text;
+        suggested = dateFromOcr(text);
+      }
+      $('ocrDob').value = suggested;
+      $('saveOcr').disabled = !suggested;
+      say('ocrMsg',suggested ? 'Detected DOB: ' + suggested + '. Check it against your ID before saving.' : 'Could not identify a DOB. Try a sharper, straight-on photo with the full front of the license visible.',!suggested);
+    } catch { say('ocrMsg','The photo could not be processed. Try a sharper, well-lit image.',true); }
+    finally { $('ocrFile').value = ''; setBusy(false); }
+  };
+  $('saveOcr').onclick = async () => {
+    if (busy || !$('ocrDob').value) return;
+    setBusy(true); say('ocrMsg','Saving the date…');
+    try {
+      const dob = $('ocrDob').value;
+      await api('/profile/ocr','POST',{dob});
+      ocrSaved = true;
+      let demo = false;
+      if (DEMO_VERIFICATION) {
+        const result = await api('/demo/verify','POST',{dob});
+        if (!result.demo || result.verified || result.age_pass_issued) throw new Error('The demo verification response was invalid.');
+        demo = true;
+      }
+      renderOcrResult(dob,demo);
+      show('ocrResult');
+    } catch (error) { say('ocrMsg',error.message,true); }
+    finally { setBusy(false); }
+  };
+  function renderOcrResult(dob,demo=false) {
+    $('ocrResultStatus').textContent = demo ? 'Verified (Demo) · simulated' : 'OCR age estimate · not verified';
+    $('ocrResultBand').textContent = ageLabelFromDob(dob) || 'Age unavailable';
+    $('ocrResultDate').textContent = 'Date of birth saved: ' + dob;
+    $('ocrResultMessage').textContent = demo
+      ? 'Demo only: OCR read this date; ID authenticity was not checked and no real age pass was issued.'
+      : ageLabelFromDob(dob) === 'Adult (18+)'
+        ? 'OCR suggests an adult age, but does not authenticate the ID. No age pass was issued.'
+        : 'OCR read this date, but does not authenticate the ID. No age pass was issued.';
+  }
+  $('backChoice').onclick = () => { if (!busy) show('choice'); };
+  $('backFromOcrResult').onclick = () => { if (!busy) show('choice'); };
+  $('chooseChild').onclick = async () => {
+    if (busy) return;
+    setBusy(true); say('choiceMsg','Setting up your child-limited pass…');
+    try { await api('/profile/child','POST',{}); await route(); }
+    catch (error) { say('choiceMsg',error.message,true); }
+    finally { setBusy(false); }
+  };
+  $('upgradeId').onclick = () => {
+    if (busy) return;
+    show('ocr');
+    say('ocrMsg','Choose a clear photo. The image stays in this browser.');
+  };
+  $('start').onclick = async () => {
+    if (busy) return;
+    setBusy(true); say('verifyMsg','Opening your document and selfie check…');
+    try {
+      const result = await api('/verify/start','POST');
+      if (result.verified) { await route(); return; }
+      let target;
+      try { target = new URL(result.url); if (target.protocol !== 'https:') throw new Error(); }
+      catch { throw new Error('The backend did not return a valid verification link. Please try again.'); }
+      location.href = target.href;
+    } catch (error) { say($('auth').hidden ? 'verifyMsg' : 'authMsg', error.message, true); }
+    finally { setBusy(false); }
+  };
+  $('refresh').onclick = async () => {
+    if (busy) return;
+    pollCount = 0;
+    setBusy(true); say('verifyMsg','Checking your result…');
+    try { await route(); }
+    catch (error) { say($('auth').hidden ? 'verifyMsg' : 'authMsg', error.message, true); }
+    finally { setBusy(false); }
+  };
+  async function signOut() {
+    if (busy || !db) return;
+    setBusy(true);
+    try {
+      const { error } = await db.auth.signOut();
+      if (error) throw new Error(error.message);
+      stopPolling(); pollCount = 0;
+      ['authMsg','verifyMsg','doneMsg'].forEach(id => say(id,''));
+      $('password').value = ''; $('email').value = '';
+      show('auth');
+    } catch (error) { say($('done').hidden ? 'verifyMsg' : 'doneMsg', error.message, true); }
+    finally { setBusy(false); }
+  }
+  $('out').onclick = signOut;
+  $('outVerify').onclick = signOut;
+  $('outChoice').onclick = signOut;
+
+  const guideTabs = ['install','activate'];
+  function selectGuide(selected, focus = false) {
+    guideTabs.forEach(name => {
+      const active = name === selected;
+      $(name + '-tab').setAttribute('aria-selected', String(active));
+      $(name + '-tab').tabIndex = active ? 0 : -1;
+      $(name + '-panel').hidden = !active;
+    });
+    if (focus) $(selected + '-tab').focus();
+  }
+  function goToBrowserStep() {
+    ['progress-account','progress-check','progress-browser'].forEach((id,index) => {
+      const current = index === 2;
+      $(id).dataset.state = current ? 'active' : 'complete';
+      if (current) $(id).setAttribute('aria-current','step');
+      else $(id).removeAttribute('aria-current');
+    });
+    selectGuide('install');
+    $('browser-guide').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  $('downloadExtension').onclick = goToBrowserStep;
+  guideTabs.forEach((name, index) => {
+    $(name + '-tab').onclick = () => selectGuide(name);
+    $(name + '-tab').onkeydown = event => {
+      if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+      event.preventDefault();
+      const next = event.key === 'Home' ? 0 : event.key === 'End' ? 1 : (index + 1) % 2;
+      selectGuide(guideTabs[next], true);
+    };
+  });
+  $('nextGuide').onclick = () => selectGuide('activate', true);
+  $('copyExtensions').onclick = async () => {
+    try { await navigator.clipboard.writeText('chrome://extensions'); say('copyMsg','Copied. Paste the address into a new Chrome tab.'); }
+    catch { say('copyMsg','Copy chrome://extensions from the instructions above, then paste it into a new Chrome tab.'); }
+  };
+
+  (async () => {
+    try {
+      if (!window.supabase) throw new Error('Account sign-in could not load. Check your internet connection and reload. The setup guide is still available below.');
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error('Open this page through the WebCompass server on localhost:3000.');
+      db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      setBusy(true);
+      const { data, error } = await db.auth.getSession();
+      if (error) throw new Error(error.message);
+      if (data?.session) { try { await route(); } catch (error) { say($('auth').hidden ? 'verifyMsg' : 'authMsg', error.message, true); } }
+      else show('auth');
+    } catch (error) { $('setupNotice').textContent = error.message; $('setupNotice').hidden = false; }
+    finally { setBusy(false); if (!db) $('authBtn').disabled = true; }
+  })();
+  </script>
+</body>
+</html>

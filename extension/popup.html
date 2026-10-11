@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WebCompass</title><link rel="stylesheet" href="ui.css"></head>
+<body class="popup"><header><span class="brand-mark" aria-hidden="true">↗</span><strong>WebCompass</strong></header>
+<p class="eyebrow">YOUR BROWSER PASS</p><h1>A little direction.<br>Every time you browse.</h1>
+<section class="pass"><span id="passLabel">No active age pass</span><strong id="band">Let’s get connected.</strong><small id="expiry">Rated sites stay locked until your age is verified.</small></section>
+<form id="loginForm"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required placeholder="you@example.com"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><button id="login" type="submit">Sign in</button></form>
+<button id="enroll" type="button" hidden>Activate my pass</button><button id="logout" type="button" class="secondary" hidden>Sign out and clear pass</button>
+<p id="message" class="message" role="status" aria-live="polite"></p>
+<p class="hint">Use the account you created on the website. An account alone does not verify your age.</p><a href="http://localhost:3000/#get-started" target="_blank" rel="noreferrer">Create an account / check my age ↗</a>
+<script src="popup.js" type="module"></script></body></html>

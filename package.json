@@ -1,0 +1,13 @@
+{
+  "name": "webcompass",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20.19.0" },
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "dev": "node --env-file=.env server.js",
+    "test": "node --test test/*.test.js",
+    "build:rules": "node scripts/build-rules.js"
+  }
+}

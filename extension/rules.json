@@ -1,0 +1,242 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "youtube.com",
+        "youtu.be"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "instagram.com"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "tiktok.com"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 4,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "reddit.com",
+        "redd.it"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "x.com",
+        "twitter.com"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 6,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "facebook.com",
+        "fb.com",
+        "fb.watch"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 7,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "snapchat.com"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 8,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "discord.com",
+        "discord.gg"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "twitch.tv"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 10,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "pinterest.com"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 11,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "example.org"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 12,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "example.net"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  },
+  {
+    "id": 13,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/gate.html"
+      }
+    },
+    "condition": {
+      "requestDomains": [
+        "example.com"
+      ],
+      "resourceTypes": [
+        "main_frame"
+      ]
+    }
+  }
+]

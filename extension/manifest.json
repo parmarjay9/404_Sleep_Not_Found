@@ -1,0 +1,73 @@
+{
+  "manifest_version": 3,
+  "name": "WebCompass",
+  "version": "0.3.0",
+  "description": "Age-band access checks for a small, explainable website rating list.",
+  "minimum_chrome_version": "120",
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "webNavigation",
+    "alarms"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://*.supabase.co/*",
+    "*://*.youtube.com/*",
+    "*://*.youtu.be/*",
+    "*://*.instagram.com/*",
+    "*://*.tiktok.com/*",
+    "*://*.reddit.com/*",
+    "*://*.redd.it/*",
+    "*://*.x.com/*",
+    "*://*.twitter.com/*",
+    "*://*.facebook.com/*",
+    "*://*.fb.com/*",
+    "*://*.fb.watch/*",
+    "*://*.snapchat.com/*",
+    "*://*.discord.com/*",
+    "*://*.discord.gg/*",
+    "*://*.twitch.tv/*",
+    "*://*.pinterest.com/*",
+    "*://*.example.org/*",
+    "*://*.example.net/*",
+    "*://*.example.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "WebCompass"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "rated_sites",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "gate.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3000/restricted*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ]
+}

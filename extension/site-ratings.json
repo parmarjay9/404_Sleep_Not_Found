@@ -1,0 +1,164 @@
+[
+  {
+    "id": "youtube",
+    "name": "YouTube",
+    "url": "https://www.youtube.com/",
+    "domains": [
+      "youtube.com",
+      "youtu.be"
+    ],
+    "minimumAge": 13,
+    "reason": "Videos and public comments can include mature topics. This policy covers the main YouTube service, not YouTube Kids or supervised-account settings.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "instagram",
+    "name": "Instagram",
+    "url": "https://www.instagram.com/",
+    "domains": [
+      "instagram.com"
+    ],
+    "minimumAge": 13,
+    "reason": "Public profiles, messages, and recommendations can bring contact and content from people you do not know.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "tiktok",
+    "name": "TikTok",
+    "url": "https://www.tiktok.com/",
+    "domains": [
+      "tiktok.com"
+    ],
+    "minimumAge": 16,
+    "reason": "WebCompass chooses a more cautious band for public short-video feeds and contact with strangers. This project rating is not TikTok's official minimum age.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "reddit",
+    "name": "Reddit",
+    "url": "https://www.reddit.com/",
+    "domains": [
+      "reddit.com",
+      "redd.it"
+    ],
+    "minimumAge": 13,
+    "reason": "Open communities can include mature discussions. A whole-domain rating does not filter adult posts or communities.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "x",
+    "name": "X / Twitter",
+    "url": "https://x.com/",
+    "domains": [
+      "x.com",
+      "twitter.com"
+    ],
+    "minimumAge": 16,
+    "reason": "WebCompass chooses a more cautious band for public conversations, unpredictable feeds, and contact with strangers.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "facebook",
+    "name": "Facebook",
+    "url": "https://www.facebook.com/",
+    "domains": [
+      "facebook.com",
+      "fb.com",
+      "fb.watch"
+    ],
+    "minimumAge": 13,
+    "reason": "Public posts, groups, and messages can expose personal information and connect you with unfamiliar people.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "snapchat",
+    "name": "Snapchat",
+    "url": "https://www.snapchat.com/",
+    "domains": [
+      "snapchat.com"
+    ],
+    "minimumAge": 13,
+    "reason": "Messaging, public stories, and location features need careful privacy choices.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "discord",
+    "name": "Discord",
+    "url": "https://discord.com/",
+    "domains": [
+      "discord.com",
+      "discord.gg"
+    ],
+    "minimumAge": 13,
+    "reason": "Open communities and direct messages can connect you with people you do not know.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "twitch",
+    "name": "Twitch",
+    "url": "https://www.twitch.tv/",
+    "domains": [
+      "twitch.tv"
+    ],
+    "minimumAge": 13,
+    "reason": "Live streams and public chat can include mature language and unpredictable conversations.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "pinterest",
+    "name": "Pinterest",
+    "url": "https://www.pinterest.com/",
+    "domains": [
+      "pinterest.com"
+    ],
+    "minimumAge": 13,
+    "reason": "Public image recommendations and profiles can include content intended for older audiences.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "example13",
+    "name": "Example · 13+",
+    "url": "https://example.org/",
+    "domains": [
+      "example.org"
+    ],
+    "minimumAge": 13,
+    "reason": "This harmless example domain demonstrates the 13+ policy.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "example16",
+    "name": "Example · 16+",
+    "url": "https://example.net/",
+    "domains": [
+      "example.net"
+    ],
+    "minimumAge": 16,
+    "reason": "This harmless example domain demonstrates the 16+ policy.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  },
+  {
+    "id": "example18",
+    "name": "Example · 18+",
+    "url": "https://example.com/",
+    "domains": [
+      "example.com"
+    ],
+    "minimumAge": 18,
+    "reason": "This harmless example domain demonstrates the adult-only policy.",
+    "sample": true,
+    "policySource": "webcompass-project-policy"
+  }
+]
