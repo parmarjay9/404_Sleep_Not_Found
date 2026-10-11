@@ -16,6 +16,7 @@ function extensionFiles(directory, prefix = '') {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
     const name = prefix ? prefix + '/' + entry.name : entry.name;
     const fullPath = path.join(directory, entry.name);
+
     return entry.isDirectory()
       ? extensionFiles(fullPath, name)
       : [{ name, fullPath }];
@@ -294,7 +295,6 @@ export function createApp({
     }
 
     const user = await response.json();
-
     return UUID.test(user.id) ? user : null;
   };
 
@@ -443,7 +443,6 @@ export function createApp({
     }
 
     rpcReadyAt = clock();
-
     return rpcReady;
   };
 
@@ -493,7 +492,6 @@ export function createApp({
     }
 
     const [row] = await response.json();
-
     return row || null;
   };
 
@@ -523,7 +521,6 @@ export function createApp({
     stateFile: config.vercel ? null : verificationFile,
     stateStore,
     clock,
-
     saveDob: async (uid, dob) => {
       const stored = await sb('profiles', {
         method: 'POST',
@@ -634,6 +631,81 @@ export function createApp({
         req.method === 'GET' &&
         route === '/downloads/webcompass-extension.zip'
       ) {
+        const serverOrigin = new URL(config.siteUrl).origin;
+        const serverUrl = new URL(serverOrigin);
+
+        if (
+          config.vercel &&
+          (serverUrl.protocol !== 'https:' ||
+            ['localhost', '127.0.0.1', '[::1]'].includes(serverUrl.hostname))
+        ) {
+          throw new Error(
+            'Set SITE_URL in Vercel to your HTTPS website address before downloading the extension.'
+          );
+        }
+
+        const packagedFiles = [];
+
+        for (const file of extensionFiles(path.join(ROOT, 'extension'))) {
+          let contents = fs.readFileSync(file.fullPath);
+
+          if (/\.(js|html|json)$/i.test(file.name)) {
+            let text = contents.toString('utf8');
+
+            if (file.name === 'background.js') {
+              const declaration =
+                /^[ \t]*const\s+SERVER\s*=\s*(['"])[^'"\r\n]*\1[ \t]*;?/m;
+
+              if (!declaration.test(text)) {
+                throw new Error(
+                  'extension/background.js must contain a const SERVER URL.'
+                );
+              }
+
+              text = text.replace(
+                declaration,
+                () => 'const SERVER = ' + JSON.stringify(serverOrigin) + ';'
+              );
+            }
+
+            text = text
+              .replaceAll('http://localhost:3000', serverOrigin)
+              .replaceAll('http://127.0.0.1:3000', serverOrigin)
+              .replaceAll(
+                'The local service is offline. Start the server on localhost:3000, then try again.',
+                'WebCompass could not be reached. Check your connection and try again.'
+              );
+
+            if (file.name === 'manifest.json') {
+              const manifest = JSON.parse(text);
+
+              manifest.host_permissions = [
+                ...new Set([
+                  ...(manifest.host_permissions || []),
+                  serverOrigin + '/*'
+                ])
+              ];
+
+              for (const script of manifest.content_scripts || []) {
+                if (script.js?.includes('content.js')) {
+                  script.matches = [
+                    ...new Set([
+                      ...(script.matches || []),
+                      serverOrigin + '/restricted*'
+                    ])
+                  ];
+                }
+              }
+
+              text = JSON.stringify(manifest, null, 2);
+            }
+
+            contents = Buffer.from(text);
+          }
+
+          packagedFiles.push({ name: file.name, contents });
+        }
+
         res.writeHead(200, {
           'content-type': 'application/zip',
           'content-disposition':
@@ -649,46 +721,16 @@ export function createApp({
         archive.on('error', () => res.destroy());
         archive.pipe(res);
 
-        for (const file of extensionFiles(path.join(ROOT, 'extension'))) {
-          let contents = fs.readFileSync(file.fullPath);
-
-          if (file.name === 'background.js') {
-            contents = Buffer.from(
-              contents.toString().replace(
-                /const SERVER = 'http:\/\/localhost:3000';/,
-                'const SERVER = ' + JSON.stringify(config.siteUrl) + ';'
-              )
-            );
-          } else if (file.name === 'manifest.json') {
-            const manifest = JSON.parse(contents.toString());
-
-            manifest.host_permissions = [
-              ...new Set([
-                ...manifest.host_permissions,
-                config.siteUrl + '/*'
-              ])
-            ];
-
-            for (const script of manifest.content_scripts || []) {
-              if (script.js?.includes('content.js')) {
-                script.matches = [
-                  ...new Set([
-                    ...script.matches,
-                    config.siteUrl + '/restricted*'
-                  ])
-                ];
-              }
-            }
-
-            contents = Buffer.from(
-              JSON.stringify(manifest, null, 2)
-            );
-          }
-
-          archive.append(contents, { name: file.name });
+        for (const file of packagedFiles) {
+          archive.append(file.contents, { name: file.name });
         }
 
-        archive.finalize();
+        try {
+          await archive.finalize();
+        } catch {
+          res.destroy();
+        }
+
         return;
       }
 
@@ -1088,7 +1130,11 @@ export function createApp({
           });
         }
 
-        return reply(res, 200, { payload, sig });
+        return reply(res, 200, {
+          data: JSON.parse(payload),
+          payload,
+          sig
+        });
       }
 
       if (
@@ -1193,6 +1239,11 @@ export function createApp({
 
       return reply(res, 404, { error: 'Not found.' });
     } catch (error) {
+      if (res.headersSent) {
+        res.destroy();
+        return;
+      }
+
       return reply(res, 400, {
         error: error instanceof SyntaxError
           ? 'Unreadable JSON request.'
@@ -1203,7 +1254,6 @@ export function createApp({
 }
 
 // Vercel imports and invokes this default request handler.
-// Reuse the application within each running worker.
 let vercelRequestHandler;
 
 export default function handler(req, res) {
