@@ -302,16 +302,37 @@ export function createApp({
     return (req.headers.authorization || '').replace(/^Bearer\s+/, '');
   };
 
-  const sb = (resource, options = {}) => {
-    return remote(config.supabaseUrl + '/rest/v1/' + resource, {
-      ...options,
-      headers: {
-        apikey: config.serviceKey,
-        authorization: 'Bearer ' + config.serviceKey,
-        'content-type': 'application/json',
-        ...options.headers
+  const sb = async (resource, options = {}) => {
+    const headers = {
+      apikey: config.serviceKey,
+      'content-type': 'application/json',
+      ...options.headers
+    };
+
+    // Legacy service_role keys are JWTs. New secret keys are not.
+    if (!config.serviceKey.startsWith('sb_secret_')) {
+      headers.authorization = 'Bearer ' + config.serviceKey;
+    }
+
+    const response = await remote(
+      config.supabaseUrl + '/rest/v1/' + resource,
+      {
+        ...options,
+        headers
       }
-    });
+    );
+
+    if (!response.ok) {
+      const error = await response.clone().json().catch(() => ({}));
+
+      console.error('Supabase request failed', {
+        status: response.status,
+        code: error?.code || 'unknown',
+        message: error?.message || 'No message returned'
+      });
+    }
+
+    return response;
   };
 
   const stateGet = async key => {
