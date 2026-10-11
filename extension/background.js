@@ -22,7 +22,6 @@ async function getKeys() {
   }
   return k;
 }
-
 const b64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
 const post = async (path, body) => {
   const r = await fetch(SERVER + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
@@ -36,6 +35,7 @@ async function handle(m) {
     const r = await post('/enroll', { pub: { kty: j.kty, crv: j.crv, x: j.x, y: j.y }, dob: m.dob });
     if (!r.ok) return { error: r.error };
     await chrome.storage.local.set({ cred: { payload: r.payload, sig: r.sig } });
+    await applyRules();   // unlock blocked sites
     return { ok: true };
   }
   if (m.type === 'content') {
@@ -53,3 +53,29 @@ async function handle(m) {
 }
 chrome.runtime.onMessage.addListener((m, _s, send) => { handle(m).then(send).catch(e => send({ error: String(e) })); return true; });
 
+// ---------------- Site blocking ----------------
+const BLOCKED = ['reddit.com'];   // <-- edit this list to block other sites (subdomains included)
+
+async function hasAccess() {
+  const r = await handle({ type: 'content' });   // full challenge-response proof against the gate
+  return !!(r && r.meme);
+}
+
+// Rules persist in Chrome, so sites stay BLOCKED by default (fail closed) until a proof succeeds.
+async function applyRules() {
+  const ok = await hasAccess().catch(() => false);
+  const old = await chrome.declarativeNetRequest.getDynamicRules();
+  await chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: old.map(r => r.id),
+    addRules: ok ? [] : BLOCKED.map((d, i) => ({
+      id: i + 1, priority: 1,
+      action: { type: 'redirect', redirect: { extensionPath: '/blocked.html' } },
+      condition: { urlFilter: '||' + d, resourceTypes: ['main_frame'] }
+    }))
+  });
+}
+
+// Re-prove every minute, so revoked, expired or server-down credentials re-lock the sites.
+chrome.runtime.onInstalled.addListener(() => { chrome.alarms.create('recheck', { periodInMinutes: 1 }); applyRules(); });
+chrome.runtime.onStartup.addListener(() => { chrome.alarms.create('recheck', { periodInMinutes: 1 }); applyRules(); });
+chrome.alarms.onAlarm.addListener(a => { if (a.name === 'recheck') applyRules(); });

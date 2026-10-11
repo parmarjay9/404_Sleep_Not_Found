@@ -2,9 +2,39 @@
   "manifest_version": 3,
   "name": "AgeGate Demo",
   "version": "0.1",
-  "permissions": ["storage"],
-  "host_permissions": ["http://localhost:3000/*"],
-  "background": { "service_worker": "background.js" },
-  "action": { "default_popup": "popup.html" },
-  "content_scripts": [{ "matches": ["http://localhost:3000/restricted*"], "js": ["content.js"] }]
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "alarms"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:3000/restricted*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "blocked.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
 }
